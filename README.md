@@ -38,3 +38,18 @@ http://localhost:9090/shipments?q=109347263,123456891
 http://localhost:9090/track?q=109347263,123456891
 
 http://localhost:9090/pricing?q=NL,CN
+
+## Docker image deliverable
+Make sure Java 22 is on your path while executing the following in the 
+Java project root directory (e.g. `/users/kees/ideaprojects/fedex-aggregate-api`)
+```
+./mvnw clean package spring-boot:build-image
+```
+If it fails because it cannot download support packages from Internet but you have a
+good connection, try it again.
+
+Now you can run the docker image:
+```
+docker container run -p 8080:8080 docker.io/library/aggregate-api:latest
+```
+and the URL's mentioned at the top will work because we mapped port 8080 to 8080.

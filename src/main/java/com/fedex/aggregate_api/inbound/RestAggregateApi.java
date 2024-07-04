@@ -5,11 +5,11 @@ import com.fedex.aggregate_api.domain.AggregatedInfo;
 import com.fedex.aggregate_api.domain.AggregatedInfoService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
-import java.util.Collections;
-import java.util.List;
+import static com.fedex.aggregate_api.util.StringUtil.commaSeparatedtoList;
 
 @RestController
 @RequestMapping("aggregation")
@@ -20,13 +20,14 @@ public class RestAggregateApi {
     }
     @GetMapping("/")
     Mono<AggregatedInfo> getAggregatedInfo(
-            String pricing,
-            String track,
-            String shipments) {
-        return service.getInfo( toList(pricing), toList(track), toList(shipments));
+            @RequestParam(required = false) String pricing,
+            @RequestParam(required = false) String track,
+            @RequestParam(required = false) String shipments) {
+        return service.getInfo(
+                commaSeparatedtoList(pricing),
+                commaSeparatedtoList(track),
+                commaSeparatedtoList(shipments));
     }
 
-    private List<String> toList(String element) {
-        return element == null ? Collections.emptyList() : List.of(element);
-    }
+
 }
