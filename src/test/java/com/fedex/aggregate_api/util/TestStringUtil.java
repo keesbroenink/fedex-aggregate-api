@@ -14,9 +14,9 @@ public class TestStringUtil {
     void testCommaSeparatedtoList() {
         assertEquals( emptyList(), commaSeparatedtoList(null));
         assertEquals( List.of("aap"), commaSeparatedtoList("aap"));
-        assertEquals( List.of("aap"), commaSeparatedtoList("aap,aap"));
+        assertEquals( List.of("aap"), commaSeparatedtoList("aap  ,  aap"));
         assertEquals( List.of("aap","noot"), commaSeparatedtoList("aap,noot"));
-        assertEquals( List.of("aap","noot"), commaSeparatedtoList("aap,noot,aap"));
+        assertEquals( List.of("aap","noot"), commaSeparatedtoList("aap, noot,aap"));
     }
 
     @Test
