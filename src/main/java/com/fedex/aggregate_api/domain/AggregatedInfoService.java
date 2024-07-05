@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class AggregatedInfoService {
@@ -22,18 +22,20 @@ public class AggregatedInfoService {
         logger.info("getInfo() pricingIso2CountryCodes {}, trackOrderNumbers {}, shipmentsOrderNumbers {}",
                 pricingIso2CountryCodes, trackOrderNumbers, shipmentsOrderNumbers);
 
-        Mono<Map<String, Double>> pricing = fedexApi.getPricing(pricingIso2CountryCodes);
-        Mono<Map<String, String>> trackStatus = fedexApi.getTrackStatus(trackOrderNumbers);
-        Mono<Map<String, List<String>>> shipments = fedexApi.getShipments(shipmentsOrderNumbers);
+        Mono<List<GenericInfo>> pricing = fedexApi.getPricing(pricingIso2CountryCodes);
+        Mono<List<GenericInfo>> trackStatus = fedexApi.getTrackStatus(trackOrderNumbers);
+        Mono<List<GenericInfo>> shipments = fedexApi.getShipments(shipmentsOrderNumbers);
+
         // call in parallel
         Mono<AggregatedInfo> answer = Mono.zip( pricing, trackStatus, shipments).map( data -> {
             AggregatedInfo result = new AggregatedInfo();
-            result.pricing = data.getT1();
-            result.track = data.getT2();
-            result.shipments = data.getT3();
-            logger.info("getInfo() after collecting data {}", result);
+            result.addPricing(data.getT1().stream().map(PricingInfo::new).collect(Collectors.toList()));
+            result.addTracking(data.getT2().stream().map(TrackingInfo::new).collect(Collectors.toList()));
+            result.addShipments(data.getT3().stream().map(ShipmentInfo::new).collect(Collectors.toList()));
             return result;
         });
         return answer;
     }
+
+
 }
