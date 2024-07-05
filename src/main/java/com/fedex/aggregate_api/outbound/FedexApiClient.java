@@ -1,5 +1,6 @@
 package com.fedex.aggregate_api.outbound;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fedex.aggregate_api.domain.FedexApi;
@@ -7,7 +8,6 @@ import com.fedex.aggregate_api.domain.GenericInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -60,34 +60,33 @@ public class FedexApiClient implements FedexApi {
         return callApi("shipments", orderNumbers);
     }
 
-    private <T> Mono<Map<String, T>> createEmptyResult(List<String> keys) {
-        Map<String, T> errorResult = new HashMap<>();
-        keys.forEach( code -> errorResult.put(code, null));
-        return Mono.just(errorResult);
+    private String createEmptyResult(List<String> keys) {
+        Map<String,Object> emptyInfo = new HashMap();
+        keys.forEach( key -> emptyInfo.put(key, emptyInfo.get(key)));
+        try {
+            return mapper.writeValueAsString(emptyInfo);
+        } catch (JsonProcessingException e) {
+            return "";
+        }
     }
 
     private Mono<List<GenericInfo>> callApi(String path, List<String> queryList) {
-        String uri = UriComponentsBuilder.newInstance().path(path)
-                .queryParam("q", listToCommaSeparated(queryList))
+        String uri = UriComponentsBuilder.newInstance().path( path)
+                .queryParam("q", listToCommaSeparated( queryList))
                 .build().toUriString();
         logger.info("Calling {}/{}", baseUrl, uri);
 
         return webClient.get()
-                .uri(uri)
+                .uri( uri)
                 .retrieve()
-                .onStatus(HttpStatusCode::isError, response -> {
-                    logger.error("Failed to call {}/{} {}", baseUrl, uri, response.statusCode());
-                    return Mono.error(new FedexApiClientException(response.statusCode()));
-                })
-                .bodyToMono(String.class)
-                .map( jsonString -> {
+                .bodyToMono( String.class)
+                .onErrorReturn( createEmptyResult( queryList))
+                .map(jsonString -> {
                     try {
-                       List<GenericInfo> result = new ArrayList<>();
-                       Map<String,Object> data = mapper.readValue(jsonString, new TypeReference<Map<String,Object>>() {});
-                       data.keySet().forEach( key ->
-                           result.add(new GenericInfo(key, data.get(key)))
-                           );
-                       return result;
+                        List<GenericInfo> result = new ArrayList<>();
+                        Map<String, Object> data = mapper.readValue(jsonString, new TypeReference<Map<String, Object>>() {});
+                        data.keySet().forEach( key -> result.add(new GenericInfo(key, data.get(key))));
+                        return result;
                     } catch (Exception e) {
                         throw new FedexApiClientException(e);
                     }
@@ -95,10 +94,9 @@ public class FedexApiClient implements FedexApi {
     }
 
     private static ExchangeFilterFunction logResponse() {
-        return ExchangeFilterFunction.ofResponseProcessor(clientResponse -> {
+        return ExchangeFilterFunction.ofResponseProcessor( clientResponse -> {
             logger.info("Response status: {}", clientResponse.statusCode());
-            clientResponse.headers().asHttpHeaders().forEach((name, values) -> values.forEach(value -> logger.info("{}={}", name, value)));
-            return Mono.just(clientResponse);
+            return Mono.just( clientResponse);
         });
     }
 
