@@ -1,6 +1,8 @@
 package com.fedex.aggregate_api.util;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class StringUtil {
@@ -13,5 +15,9 @@ public class StringUtil {
         return element == null ?
                 Collections.emptyList() :
                 Arrays.stream(element.split(",")).distinct().collect(Collectors.toList());
+    }
+    public static String listToCommaSeparated(List<String> elements) {
+        return elements.stream()
+                .collect(Collectors.joining(","));
     }
 }
