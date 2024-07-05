@@ -1,4 +1,8 @@
-# fedex-aggregate-api
+# FedEx Aggregate Api Service
+
+This is a Java HTTP Rest server written for an FedEx job assessment. You can use the typical Maven commands to build a
+fat JAR, but you can also run the main class `AggregateApiApplication` directly. Java 22 is required.
+See further below how to create a Docker image.
 
 ## Useful commands
 When running your application locally on port 8080 you can use the following URL's out of the box. When
@@ -23,7 +27,7 @@ http://localhost:8080/v3/api-docs.yaml (yaml)
 ## External runtime dependencies
 
 The aggregate service connects to three different REST API's on the same endpoint. 
-The default port is 8080. Get the Docker image here:
+Get the Docker image here:
 
 https://hub.docker.com/r/xyzassessment/backend-services
 
