@@ -66,20 +66,5 @@ This is fully implemented. You can read the code to see it is solved with the Sp
 The three network calls to the FedEx API are execute in parallel and use non-blocking IO for optimal resource usage and speed.
 Note that the test code does not cover all scenario's yet.
 
-### AS-2: as FedEx, I want service calls to be throttled and bulked into consolidated requests per respective API to prevent services from being overloaded
-
-This is not implemented. It is unclear how to use WebFlux to hold on to a HTTP client request when the requested items
-are less than 5. With DeferredResult I can see a solution but that would mean to rewrite the code for AS-1.
-Note that holding HTTP requests, although using minimal resources, always requires the TCP/ HTTP stack to
-keep the connection alive. This is discouraged from a Reactive perspective. It would not sit well with the
-approach taken with AS-1 where optimal resource usage was a key feature of the solution.
-To working around a backend that is sensitive for overload we can think of different solutions. The first
-solution that comes in mind is to introduce a datastore that will contain the required info. We could either
-make sure that all updates are also put in the datastore or we could make a background scheduled service to
-keep the datastore close to the latest situation. Our web clients can query the datastore and will always have a quick response
-and we keep the HTTP channels in good shape.
-
-### AS-3: as FedEx, I want service calls to be scheduled periodically even if the queue is not full to prevent overly-long response times
-
-This user story should go together with AS-2. It is not acceptable to have web clients waits indefinitely.
-See the previous paragraph for more information on AS-2 which also applies to AS-3.
+There is a new project fedex-aggregate-api-full that also implements AS-2 and AS-3. It also has more testcode for AS-1.
+And it refactored some code to make it better.
