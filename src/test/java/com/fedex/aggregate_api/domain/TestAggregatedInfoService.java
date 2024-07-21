@@ -17,12 +17,9 @@ public class TestAggregatedInfoService {
         AggregatedInfoService service = new AggregatedInfoService(fedexApi);
         Mono<AggregatedInfo> result = service.getInfo(emptyList(), emptyList(), emptyList());
         AggregatedInfo info = result.block();
-        assertEquals(emptyMap(),info.pricing);
-        assertEquals(emptyMap(),info.track);
-        assertEquals(emptyMap(),info.shipments);
+        assertEquals(emptyMap(),info.pricing());
+        assertEquals(emptyMap(),info.track());
+        assertEquals(emptyMap(),info.shipments());
     }
 
-    // only pricing
-
-    //
 }

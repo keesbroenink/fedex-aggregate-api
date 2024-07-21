@@ -18,7 +18,7 @@ public class RestAggregateApi {
     public RestAggregateApi(AggregatedInfoService aggregatedInfoService) {
         this.service = aggregatedInfoService;
     }
-    @GetMapping("/")
+    @GetMapping("")
     Mono<AggregatedInfo> getAggregatedInfo(
             @RequestParam(required = false) String pricing,
             @RequestParam(required = false) String track,

@@ -14,7 +14,7 @@ public class StringUtil {
     public static List<String> commaSeparatedtoList(String element) {
         return element == null ?
                 Collections.emptyList() :
-                Arrays.stream(element.split(",")).map(s->s.trim()).distinct().collect(Collectors.toList());
+                Arrays.stream(element.split(",")).map(s->s.trim()).distinct().toList();
     }
     public static String listToCommaSeparated(List<String> elements) {
         return elements.stream()
